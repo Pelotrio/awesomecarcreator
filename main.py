@@ -39,6 +39,7 @@ def jpegify(image, power=92, repetitions=50):
 
 def apply_color_overlay(image, overlay):
     image = image.convert("L").convert("RGB")
+    overlay = overlay.convert("RGBA")
     
     overlay.putalpha(ImageEnhance.Brightness(overlay.split()[3]).enhance(0.5))
     return Image.composite(overlay, image, overlay)
@@ -62,7 +63,7 @@ watermark = Image.open("watermark.png")
 
 template = apply_color_overlay(template, overlay)
 template = apply_watermark(template, watermark, (0,0))
-template = apply_logo(template, logo, (0,0), (128,128))
+template = apply_logo(template, logo, (900,450), (192,192))
 template = jpegify(template)
 
-generate_video(template, "audio.mp3", "out.mp4")
+generate_video(template, "frwl.wav", "out.mp4")
