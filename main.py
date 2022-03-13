@@ -1,4 +1,5 @@
 import io
+import os
 import subprocess
 from PIL import Image, ImageEnhance
 
@@ -36,25 +37,22 @@ def jpegify(image, power=92, repetitions=50):
     return out
 
 
-def apply_color(template, image):
-    template = template.convert("RGB")
-    image = image
-
-    template = template.convert("L").convert("RGB")
+def apply_color_overlay(image, overlay):
+    image = image.convert("L").convert("RGB")
     
-    image.putalpha(ImageEnhance.Brightness(image.split()[3]).enhance(0.5))
-    return Image.composite(image, template, image)
+    overlay.putalpha(ImageEnhance.Brightness(overlay.split()[3]).enhance(0.5))
+    return Image.composite(overlay, image, overlay)
 
 def apply_watermark(image, watermark):
     image.paste(watermark, (0, 0), watermark)
     return image
 
 
-template = Image.open("template.png")
+template = Image.open(f"resources{os.sep}template.png")
 overlay = Image.open("overlay.png")
 watermark = Image.open("watermark.png")
 
-template = apply_color(template, overlay)
+template = apply_color_overlay(template, overlay)
 template = apply_watermark(template, watermark)
 template = jpegify(template)
 
