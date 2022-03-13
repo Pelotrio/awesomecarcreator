@@ -3,14 +3,27 @@ import subprocess
 from PIL import Image, ImageEnhance
 
 
-# Creates a video from a single image
-def create_video(image_path, video_path, audio_path, duration):
-    out, err = subprocess.Popen(
-        ["ffmpeg", "-y", "-loop", "1", "-i", image_path, "-c:v", "libx264", "-t", str(duration), "-tune", "stillimage",
-         "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-vf", "scale=720:720", "-shortest", video_path, "-i",
-         audio_path],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE).communicate()
+def generate_video(image, audio_filename, output_filename, duration = 10, seek_to = "00:00:00", audio_rate = 16000, video_bitrate = "200k", max_filesize = "8M"):
+    image_buffer = io.BytesIO()
+    image.save(image_buffer, "png")
+    image_buffer.seek(0)
+
+    #ffmpeg
+    command  = f"ffmpeg -y -hide_banner -loglevel error" + " "
+
+    #image
+    command += f"-r 15 -loop 1 -i -" + " "
+
+    #audio
+    command += f"-ss {seek_to} -i {audio_filename} -ar {audio_rate}" + " "
+
+    #out file stuff
+    command += f"-vf \"scale=720:720\" -b:v {video_bitrate} -t {duration} -fs {max_filesize} -r 15 {output_filename}"
+
+    out, err = subprocess.Popen(command, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate(input = image_buffer.read())
+
+    #print(err)
+    #TODO: maybe handle errors
 
 
 def jpegify(image, power=92, repetitions=50):
@@ -23,12 +36,26 @@ def jpegify(image, power=92, repetitions=50):
     return out
 
 
-def apply_color(template, image, template_to_grayscale=True):
+def apply_color(template, image):
     template = template.convert("RGB")
     image = image
 
-    if template_to_grayscale:
-        template = template.convert("L").convert("RGB")
-
+    template = template.convert("L").convert("RGB")
+    
     image.putalpha(ImageEnhance.Brightness(image.split()[3]).enhance(0.5))
     return Image.composite(image, template, image)
+
+def apply_watermark(image, watermark):
+    image.paste(watermark, (0, 0), watermark)
+    return image
+
+
+template = Image.open("template.png")
+overlay = Image.open("overlay.png")
+watermark = Image.open("watermark.png")
+
+template = apply_color(template, overlay)
+template = apply_watermark(template, watermark)
+template = jpegify(template)
+
+generate_video(template, "audio.mp3", "out.mp4")
