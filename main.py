@@ -43,17 +43,26 @@ def apply_color_overlay(image, overlay):
     overlay.putalpha(ImageEnhance.Brightness(overlay.split()[3]).enhance(0.5))
     return Image.composite(overlay, image, overlay)
 
-def apply_watermark(image, watermark):
-    image.paste(watermark, (0, 0), watermark)
+def apply_watermark(image, watermark, pos):
+    image.paste(watermark, pos, watermark)
+    return image
+
+def apply_logo(image, logo, pos, size, angle = 0):
+    logo.thumbnail(size)
+    logo = logo.rotate(angle, expand=True)
+    #TODO: more magic
+    image.paste(logo, pos, logo)
     return image
 
 
 template = Image.open(f"resources{os.sep}template.png")
 overlay = Image.open("overlay.png")
+logo = Image.open("logo.png")
 watermark = Image.open("watermark.png")
 
 template = apply_color_overlay(template, overlay)
-template = apply_watermark(template, watermark)
+template = apply_watermark(template, watermark, (0,0))
+template = apply_logo(template, logo, (0,0), (128,128))
 template = jpegify(template)
 
 generate_video(template, "audio.mp3", "out.mp4")
