@@ -1,5 +1,16 @@
-from PIL import Image, ImageEnhance
 import io
+import subprocess
+from PIL import Image, ImageEnhance
+
+
+# Creates a video from a single image
+def create_video(image_path, video_path, audio_path, duration):
+    out, err = subprocess.Popen(
+        ["ffmpeg", "-y", "-loop", "1", "-i", image_path, "-c:v", "libx264", "-t", str(duration), "-tune", "stillimage",
+         "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-vf", "scale=720:720", "-shortest", video_path, "-i",
+         audio_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE).communicate()
 
 
 def jpegify(image, power=92, repetitions=50):
