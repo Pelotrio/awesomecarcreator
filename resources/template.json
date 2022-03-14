@@ -1,0 +1,5 @@
+{
+    "image": "template.png",
+    "jpegify": false,
+    "logo": {"pos": [480, 400], "size": [192, 192]}
+}
