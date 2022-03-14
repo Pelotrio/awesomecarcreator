@@ -1,5 +1,4 @@
 {
     "image": "template.png",
-    "jpegify": false,
-    "logo": {"pos": [480, 400], "size": [192, 192]}
+    "logo": {"pos": [512, 368], "size": [192, 192]}
 }

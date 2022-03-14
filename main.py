@@ -99,6 +99,8 @@ def colorize_with_image(image, overlay):
 
     return Image.fromarray(out_array.astype("uint8"), "RGB")
 
+def ruin_resolution(image, power = 3):
+    return image.resize((int(image.size[0] / 2**power), int(image.size[1] / 2**power))).resize((image.size[0], image.size[1]))
 
 
 #everything is subject to change
@@ -110,9 +112,9 @@ with open(f"resources{os.sep}{template_name}.json") as file:
 
 template = Image.open(f"resources{os.sep}{template_data['image']}")
 
-if template_data["jpegify"]:
-    template = jpegify(template)
-
 template = change_color(template, (255, 0, 127))
+
+template = jpegify(template)
+template = ruin_resolution(template)
 
 template.show()
