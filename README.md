@@ -1,4 +1,4 @@
-# awesomecarmaker
+# awesomecarcreator
 
 🥶 python application to generate drip car videos with ffmpeg and PIL
 
