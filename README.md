@@ -1,7 +1,7 @@
 # awesomecarcreator
 
-🥶 C++/WebAssembly application for making drip car videos with cool libraries
+🥶 python application to generate drip car videos with ffmpeg and PIL
 
-Currently WIP
+currently WIP
 
-*made for https://awesomecars.neocities.org and its community*
+made for https://awesomecars.neocities.org
