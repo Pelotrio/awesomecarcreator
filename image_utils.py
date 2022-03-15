@@ -6,8 +6,7 @@ import json
 import io
 import os
 
-from PIL.ImageQt import ImageQt
-from PySide6.QtGui import QPixmap, QColor
+
 
 def generate_video(image, audio_filename, output_filename, duration = 10, seek_to = "00:00:00", audio_rate = 16000, video_bitrate = "500k", max_filesize = "8M", framerate = 7):
     image_buffer = io.BytesIO()
@@ -102,6 +101,11 @@ def colorize_with_image(image, overlay):
 
 def ruin_resolution(image, power = 3):
     return image.resize((int(image.size[0] / 2**power), int(image.size[1] / 2**power))).resize((image.size[0], image.size[1]))
+
+
+
+from PIL.ImageQt import ImageQt
+from PySide6.QtGui import QPixmap, QColor
 
 def create(template_name: str, color: QColor):
     print('DEBUG: (SLOW FUNCTION) creating cursed image')
