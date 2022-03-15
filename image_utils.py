@@ -62,20 +62,18 @@ def put_logo(image, logo, pos, size, angle = 0):
     return image
 
 def change_color(image, color):
-    image = image.convert("RGB")
+    image = image.convert("HSV")
     image_array = numpy.array(numpy.asarray(image).astype('float'))
 
-    image_rgb = numpy.rollaxis(image_array, axis = -1)
-    image_h, image_s, image_v = numpy.vectorize(colorsys.rgb_to_hsv)(*image_rgb)
+    image_h, image_s, image_v = numpy.rollaxis(image_array, axis = -1)
 
-    color_h, _, _ = colorsys.rgb_to_hsv(color[0], color[1], color[2])
+    color_h = Image.new("RGB", (1, 1), color).convert("HSV").getpixel((0,0))[0]
 
-    image_h = color_h
-    image_rgb = numpy.vectorize(colorsys.hsv_to_rgb)(image_h, image_s, image_v)
+    image_h = numpy.full((image.width, image.height), color_h)
 
-    out_array = numpy.dstack(image_rgb)
+    out_array = numpy.dstack((image_h, image_s, image_v))
 
-    return Image.fromarray(out_array.astype("uint8"), "RGB")
+    return Image.fromarray(out_array.astype("uint8"), "HSV").convert("RGB")
 
 def colorize_with_image(image, overlay):
     image = image.convert("RGB")
