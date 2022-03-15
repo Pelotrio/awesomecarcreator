@@ -1,119 +1,169 @@
-from PIL import Image, ImageEnhance
-import subprocess
-import colorsys
-import numpy
-import json
-import io
 import os
+import sys
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
 
+import image_utils
 
+class Viewer(QLabel):
+    def __init__(self, pixmap):
+        super().__init__()
+        
+        self.pixmap = pixmap
 
-def generate_video(image, audio_filename, output_filename, duration = 10, seek_to = "00:00:00", audio_rate = 16000, video_bitrate = "500k", max_filesize = "8M", framerate = 7):
-    image_buffer = io.BytesIO()
-    image.save(image_buffer, "png")
-    image_buffer.seek(0)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self.setAlignment(Qt.AlignCenter)
 
-    #ffmpeg
-    command  = f"ffmpeg -y -hide_banner -loglevel error" + " "
+        self.setMinimumSize(1, 1)
+        self.rescale()
 
-    #image
-    command += f"-r {framerate} -loop 1 -i cache:pipe:" + " "
+    def updatePixmap(self, pixmap):
+        self.pixmap = pixmap
+        self.rescale()
 
-    #audio
-    command += f"-ss {seek_to} -i {audio_filename} -ar {audio_rate}" + " "
+    def resizeEvent(self, e: QResizeEvent) -> None:
+        super().resizeEvent(e)
+        self.rescale()
 
-    #out file stuff
-    command += f"-r {framerate} -vf \"scale=720:720\" -b:v {video_bitrate} -fs {max_filesize} -t {duration} -movflags +faststart {output_filename}"
+    def rescale(self):
+        w = self.width()
+        h = self.height()
 
-    _, err = subprocess.Popen(command, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate(input = image_buffer.read())
+        self.setPixmap(
+            self.pixmap.scaled(
+                w, h,
+                Qt.KeepAspectRatio
+            )
+        )
 
-    if err != b"":
-        raise Exception(f"Unknown error, stderr: {err}")
+class ColorBox(QLabel):
+    def __init__(self, parent, color: QColor):
+        super().__init__()
 
-def jpegify(image, power = 92, repetitions = 50):
-    out = image.convert("RGB")
-    for i in range(repetitions):
-        buffer = io.BytesIO()
-        out.save(buffer, "jpeg", quality = 100 - power)
-        buffer.seek(0)
-        out = Image.open(buffer)
-    return out
+        self.parent = parent
 
-def apply_color_overlay(image, overlay, grayscale = True, alpha = 0.5):
-    overlay = overlay.convert("RGBA")
-    
-    if grayscale:
-        image = image.convert("L")
+        self.setFixedSize(75, 24)
+        self.color = color
+        self.update_text()
 
-    image = image.convert("RGB")
-    
-    overlay.putalpha(ImageEnhance.Brightness(overlay.split()[3]).enhance(alpha))
-    return Image.composite(overlay, image, overlay)
+    def update_text(self):
+        hex = self.color.name()
+        self.setText(hex)
 
-def put_watermark(image, watermark, pos):
-    image.paste(watermark, pos, watermark)
-    return image
+        style = f'''
+        QLabel {{
+            background-color: {hex};
+            color: black;
+            border-radius: 5px;
+            font-family: monospce;
+            font-weight: bold;
+        }}
+        
+        '''
 
-def put_logo(image, logo, pos, size, angle = 0):
-    logo = logo.resize(size)
-    logo = logo.rotate(-angle, expand = True)
-    #TODO: more magic
-    image.paste(logo, pos, logo)
-    return image
+        self.setStyleSheet(style)
+        self.setAlignment(Qt.AlignCenter)
 
-def change_color(image, color):
-    image = image.convert("RGB")
-    image_array = numpy.array(numpy.asarray(image).astype('float'))
+    def mousePressEvent(self, event: QMouseEvent):
+        self.color = QColorDialog.getColor(
+            initial=self.color,
+            options = QColorDialog.DontUseNativeDialog
+        )
+        self.update_text()
+        self.parent.on_property_change()
 
-    image_rgb = numpy.rollaxis(image_array, axis = -1)
-    image_h, image_s, image_v = numpy.vectorize(colorsys.rgb_to_hsv)(*image_rgb)
+class MainWin(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+        # self.setGeometry(100, 100, 800, 600)
 
-    color_h, _, _ = colorsys.rgb_to_hsv(color[0], color[1], color[2])
+        self.icon_path = None
 
-    image_h = color_h
-    image_rgb = numpy.vectorize(colorsys.hsv_to_rgb)(image_h, image_s, image_v)
+        self.setContentsMargins(0, 0, 0, 0)
 
-    out_array = numpy.dstack(image_rgb)
+        self.vbox = QVBoxLayout(self)
 
-    return Image.fromarray(out_array.astype("uint8"), "RGB")
+        self.image = QPixmap("resources/template.png")
+        self.colorbox = ColorBox(self, QColor('#00ff00'))
 
-def colorize_with_image(image, overlay):
-    image = image.convert("RGB")
-    overlay = overlay.convert("RGB")
+        self.viewer = Viewer(self.image)
+        self.vbox.addWidget(self.viewer)
 
-    image_array = numpy.array(numpy.asarray(image).astype('float'))
-    overlay_array = numpy.array(numpy.asarray(overlay).astype('float'))
+        self.lower_hbox = QHBoxLayout()
+        self.lower_hbox.setAlignment(Qt.AlignCenter)
+        self.vbox.addLayout(self.lower_hbox)
+        
+        # left hbox
+        left_vbox = QVBoxLayout()
+        left_vbox.setAlignment(Qt.AlignTop)
+        self.lower_hbox.addLayout(left_vbox)
+        
+        # color box
+        left_vbox.addWidget(QLabel("Select Color"))
+        left_vbox.addWidget(self.colorbox)
+        
+        # right hbox
+        right_vbox = QVBoxLayout()
+        right_vbox.setAlignment(Qt.AlignTop)
+        self.lower_hbox.addLayout(right_vbox)
 
-    image_rgb = numpy.rollaxis(image_array, axis = -1)
-    image_h, image_s, image_v = numpy.vectorize(colorsys.rgb_to_hsv)(*image_rgb)
+        # file dialog
+        self.upload_button = QPushButton("Browse")
+        self.upload_button.setFixedSize(75, 24)
+        self.upload_button.clicked.connect(self.on_upload_click)
 
-    overlay_rgb = numpy.rollaxis(overlay_array, axis = -1)
-    overlay_h, overlay_s, _ = numpy.vectorize(colorsys.rgb_to_hsv)(*overlay_rgb)
+        # logo dialog
+        right_vbox.addWidget(QLabel("Select Logo"))
+        right_vbox.addWidget(self.upload_button)
 
-    image_h = overlay_h
-    image_s = overlay_s * image_s
+        # save button
+        self.lower_hbox.addStretch()
+        self.lower_hbox.addWidget(QPushButton("Save"))
 
-    image_rgb = numpy.vectorize(colorsys.hsv_to_rgb)(image_h, image_s, image_v)
+        self.update_image()
 
-    out_array = numpy.dstack(image_rgb)
+    def update_image(self):
+        self.image = image_utils.create('template', self.colorbox.color)
+        self.viewer.updatePixmap(self.image)
 
-    return Image.fromarray(out_array.astype("uint8"), "RGB")
+    def on_upload_click(self):
+        path = QFileDialog.getOpenFileName(caption="Select Logo Image")[0]
+        
+        if not path:
+            return
 
-def ruin_resolution(image, power = 3):
-    return image.resize((int(image.size[0] / 2**power), int(image.size[1] / 2**power))).resize((image.size[0], image.size[1]))
+        if os.path.isfile(path):
+            self.icon_path = path
+            self.upload_button.setText(os.path.basename(path))
 
+    def on_property_change(self):
+        self.update_image()
 
+if __name__ == '__main__':
+    qapp = QApplication()
+    qapp.setApplicationDisplayName("Awesome Car Creator")
+    qapp.setStyle("Fusion")
 
-template_name = "template"
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    palette.setColor(QPalette.WindowText, Qt.white)
+    palette.setColor(QPalette.Base, QColor(25, 25, 25))
+    palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+    palette.setColor(QPalette.ToolTipBase, Qt.black)
+    palette.setColor(QPalette.ToolTipText, Qt.white)
+    palette.setColor(QPalette.Text, Qt.white)
+    palette.setColor(QPalette.Button, QColor(53, 53, 53))
+    palette.setColor(QPalette.ButtonText, Qt.white)
+    palette.setColor(QPalette.BrightText, Qt.red)
+    palette.setColor(QPalette.Link, QColor(42, 130, 218))
+    palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+    palette.setColor(QPalette.HighlightedText, Qt.black)
+    qapp.setPalette(palette)
 
-with open(f"resources{os.sep}{template_name}.json") as file:
-    template_data = json.load(file)
+    win = MainWin()
+    win.show()
 
-template = Image.open(f"resources{os.sep}{template_data['image']}")
-
-template = change_color(template, (255, 0, 127))
-
-template = jpegify(template)
-template = ruin_resolution(template)
-
-template.show()
+    sys.exit(
+        qapp.exec()
+    )
