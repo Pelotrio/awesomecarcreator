@@ -76,26 +76,21 @@ def change_color(image, color):
     return Image.fromarray(out_array.astype("uint8"), "HSV").convert("RGB")
 
 def colorize_with_image(image, overlay):
-    image = image.convert("RGB")
-    overlay = overlay.convert("RGB")
+    image = image.convert("HSV")
+    overlay = overlay.convert("HSV")
 
     image_array = numpy.array(numpy.asarray(image).astype('float'))
     overlay_array = numpy.array(numpy.asarray(overlay).astype('float'))
 
-    image_rgb = numpy.rollaxis(image_array, axis = -1)
-    image_h, image_s, image_v = numpy.vectorize(colorsys.rgb_to_hsv)(*image_rgb)
-
-    overlay_rgb = numpy.rollaxis(overlay_array, axis = -1)
-    overlay_h, overlay_s, _ = numpy.vectorize(colorsys.rgb_to_hsv)(*overlay_rgb)
+    image_h, image_s, image_v = numpy.rollaxis(image_array, axis = -1)
+    overlay_h, overlay_s, _ = numpy.rollaxis(overlay_array, axis = -1)
 
     image_h = overlay_h
     image_s = overlay_s * image_s
 
-    image_rgb = numpy.vectorize(colorsys.hsv_to_rgb)(image_h, image_s, image_v)
+    out_array = numpy.dstack((image_h, image_s, image_v))
 
-    out_array = numpy.dstack(image_rgb)
-
-    return Image.fromarray(out_array.astype("uint8"), "RGB")
+    return Image.fromarray(out_array.astype("uint8"), "HSV").convert("RGB")
 
 def ruin_resolution(image, power = 3):
     return image.resize((int(image.size[0] / 2**power), int(image.size[1] / 2**power))).resize((image.size[0], image.size[1]))
