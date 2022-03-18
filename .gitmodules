@@ -1,0 +1,6 @@
+[submodule "external/FFmpeg"]
+	path = external/FFmpeg
+	url = https://github.com/FFmpeg/FFmpeg.git
+[submodule "external/ImGui"]
+	path = external/ImGui
+	url = https://github.com/ocornut/imgui.git
