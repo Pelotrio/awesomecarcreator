@@ -4,7 +4,7 @@
 
 Currently WIP and only [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
 
-*made for [awesomecars.neocities.org](https://awesomecars.neocities.org "🥶 Website") and its community*
+*made for [awesomecars.neocities.org](https://awesomecars.neocities.org "🥶 website") and its community*
 
 ---
 
