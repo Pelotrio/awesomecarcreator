@@ -1,4 +1,4 @@
-﻿#include "awesomecarcreator.hpp"
+#include "awesomecarcreator.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 		helper::begin_frame();
 
 		/*==========*/
+
 
 		//"Hello, world!" window
 		{
