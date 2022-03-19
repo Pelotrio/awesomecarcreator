@@ -1,6 +1,6 @@
 # awesomecarcreator
 
-🥶 C++/WebAssembly application for making drip car videos with cool libraries
+🥶 C++ desktop application for making drip car videos with cool libraries
 
 Currently WIP
 
