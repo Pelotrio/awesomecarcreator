@@ -14,4 +14,5 @@ Currently WIP and only [![forthebadge](https://forthebadge.com/images/badges/wor
 	<a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/designed-in-ms-paint.svg" alt="forthebadge"/></a>
 	<a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/compatibility-betamax.svg" alt="forthebadge"/></a>
 	<a href="https://forthebadge.com"><img src="https://forthebadge.com/images/badges/uses-badges.svg" alt="forthebadge"/></a>
+	<a href="https://forthebadge.com"><img src="https://media.discordapp.net/attachments/952581392569597962/954786252434059315/wasm-soonTM.png" alt="forthebadge"/></a>
 </p>
