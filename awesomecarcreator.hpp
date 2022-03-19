@@ -1,8 +1,11 @@
-#pragma once
+﻿#pragma once
 
 #include <iostream>
+#include <thread>
 
-#include <Magick++.h>
 #include <imgui.h>
+#include <Magick++.h>
+#include <nlohmann/json.hpp>
 
+#include "helper.hpp"
 #include "utility.hpp"

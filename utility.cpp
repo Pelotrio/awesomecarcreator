@@ -15,13 +15,18 @@ namespace utility
 		}
 	}
 
-	//TODO, WIP
 	void apply_color_overlay(Magick::Image& image, Magick::Image overlay, bool grayscale, uint16_t opaque)
 	{
+		Magick::ColorspaceType original_colorspace(image.colorSpace());
+		if (grayscale)
+			image.colorSpace(Magick::ColorspaceType::GRAYColorspace);
+
 		Magick::Geometry size = image.size();
 		overlay.resize(size);
 		overlay.opacity(opaque);
 		image.composite(overlay, Magick::GravityType::CenterGravity, Magick::OverCompositeOp);
+
+		image.colorSpace(original_colorspace);
 	}
 
 	void paste_image(Magick::Image& image, Magick::Image logo, Magick::Geometry place, double_t angle)
