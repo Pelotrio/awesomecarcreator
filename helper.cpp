@@ -60,7 +60,7 @@ namespace helper
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		#endif
 
-		GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(1280, 720, "awesomecarcreator", NULL, NULL);
 
 		if (window == NULL)
 			return nullptr;
