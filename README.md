@@ -2,7 +2,7 @@
 
 🥶 C++ desktop application for making drip car videos with cool libraries
 
-Currently WIP and only [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
+Currently WIP and only [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com) :trollface:
 
 *made for [awesomecars.neocities.org](https://awesomecars.neocities.org "🥶 website") and its community*
 
