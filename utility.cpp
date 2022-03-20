@@ -92,4 +92,58 @@ namespace utility
 		image.resize(size);
 		image.resize(original_size);
 	}
+
+	//WIP
+	void generate_video(Magick::Image image, uint8_t fps)
+	{
+		image.colorSpace(Magick::ColorspaceType::RGBColorspace);
+
+		Magick::Geometry size = image.size();
+		Magick::PixelPacket* image_pixels = image.getPixels(0, 0, size.width(), size.height());
+
+		ffmpeg::SwsContext* sws_context = ffmpeg::sws_getContext(size.width(), size.height(), ffmpeg::AV_PIX_FMT_RGB24, size.width(), size.height(), ffmpeg::AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+
+		uint8_t* input_pixels[4];
+		int input_linesize[4];
+		int input_byte_size = ffmpeg::av_image_alloc(input_pixels, input_linesize, size.width(), size.height(), ffmpeg::AV_PIX_FMT_RGB24, 1);
+
+		uint32_t n = 0;
+		for (uint32_t i = 0; i < input_byte_size; i += 3, n++)
+		{
+			input_pixels[0][i] = image_pixels[n].red;
+			input_pixels[0][i + 1] = image_pixels[n].green;
+			input_pixels[0][i + 2] = image_pixels[n].blue;
+		}
+
+		uint8_t* output_pixels[4];
+		int output_linesize[4];
+		int output_byte_size = ffmpeg::av_image_alloc(output_pixels, output_linesize, size.width(), size.height(), ffmpeg::AV_PIX_FMT_YUV420P, 1);
+
+		ffmpeg::sws_scale(sws_context, input_pixels, input_linesize, 0, size.height(), output_pixels, output_linesize);
+
+		/*====================================================================================================*/
+
+		{
+			FILE* dst_file = fopen(R"(C:\rawimage)", "wb");
+			if (!dst_file) {
+				fprintf(stderr, "Could not open destination file %s\n", R"(C:\rawimage)");
+				exit(1);
+			}
+
+			fwrite(output_pixels[0], 1, output_byte_size, dst_file);
+
+			fprintf(stderr, "Scaling succeeded. Play the output file with the command:\n"
+				"ffplay -f rawvideo -pix_fmt %s -video_size %dx%d %s\n",
+				ffmpeg::av_get_pix_fmt_name(ffmpeg::AV_PIX_FMT_YUV420P), size.width(), size.height(), R"(C:\rawimage)");
+
+			fclose(dst_file);
+		}
+
+		/*====================================================================================================*/
+
+		ffmpeg::av_freep(&input_pixels[0]);
+		ffmpeg::av_freep(&output_pixels[0]);
+
+		ffmpeg::sws_freeContext(sws_context);
+	}
 }

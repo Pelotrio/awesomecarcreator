@@ -2,6 +2,17 @@
 
 #include <Magick++.h>
 
+namespace ffmpeg
+{
+	extern "C"
+	{
+		#include <libavutil/imgutils.h>
+		#include <libavcodec/avcodec.h>
+		#include <libavutil/parseutils.h>
+		#include <libswscale/swscale.h>
+	}
+}
+
 namespace utility
 {
 	void jpegify(Magick::Image& image, uint8_t power = 92, uint8_t repetitions = 50);
@@ -10,4 +21,5 @@ namespace utility
 	void change_color(Magick::Image& image, Magick::Color color);
 	void colorize_with_image(Magick::Image& image, Magick::Image overlay, Magick::Coordinate position = Magick::Coordinate(0, 0));
 	void ruin_resolution(Magick::Image& image, uint8_t power = 3);
+	void generate_video(Magick::Image image, uint8_t fps = 7);
 }
