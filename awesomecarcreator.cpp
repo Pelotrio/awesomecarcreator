@@ -31,9 +31,6 @@ int main(int argc, char* argv[])
 	bool show_demo_window = true;
 	bool show_metrics_window = false;
 
-	static float f = 0.0f;
-	static int counter = 0;
-
 	while (helper::loop(window))
 	{
 		helper::begin_frame();
@@ -45,15 +42,15 @@ int main(int argc, char* argv[])
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("New", "Ctrl+N")) {}
-				if (ImGui::MenuItem("Open", "Ctrl+O")) {}
-				if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-				if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) {}
+				if (ImGui::MenuItem("New", "Ctrl+N")) { onNewFile(); }
+				if (ImGui::MenuItem("Open", "Ctrl+O")) { onOpenFile(); }
+				if (ImGui::MenuItem("Save", "Ctrl+S")) { onSaveFile(); }
+				if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) { onSaveAsFile(); }
 				ImGui::Separator();
-				if (ImGui::MenuItem("Import", "Ctrl+I")) {}
-				if (ImGui::MenuItem("Export", "Ctrl+E")) {}
+				if (ImGui::MenuItem("Import", "Ctrl+I")) { onImportFile(); }
+				if (ImGui::MenuItem("Export", "Ctrl+E")) { onExportFile(); }
 				ImGui::Separator();
-				if (ImGui::MenuItem("Exit", "Alt+F4")) {}
+				if (ImGui::MenuItem("Exit", "Alt+F4")) { /*return 0;*/ }
 
 				ImGui::EndMenu();
 			}
@@ -61,10 +58,12 @@ int main(int argc, char* argv[])
 			ImGui::EndMainMenuBar();
 		}
 
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_N, false))
-			std::cout << "Ctrl+N pressed." << std::endl;
-
-		// ...
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_N, false)) { onNewFile(); }
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_O, false)) { onOpenFile(); }
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onSaveFile(); }
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKeyModFlags_Shift | ImGuiKey_S, false)) { onSaveAsFile(); }
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onImportFile(); }
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onExportFile(); }
 
 		//"Primary Window"
 		{
@@ -80,7 +79,6 @@ int main(int argc, char* argv[])
 
 			ImGui::Separator();
 
-			ImGui::Text("counter = %d", counter);
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
 			ImGui::End();
@@ -101,4 +99,34 @@ int main(int argc, char* argv[])
 	helper::cleanup(window);
 
 	return 0;
+}
+
+void onNewFile()
+{
+	std::cout << "onNewFile() called" << std::endl;
+}
+
+void onOpenFile()
+{
+	std::cout << "onOpenFile() called" << std::endl;
+}
+
+void onSaveFile()
+{
+	std::cout << "onSaveFile() called" << std::endl;
+}
+
+void onSaveAsFile()
+{
+	std::cout << "onSaveAsFile() called" << std::endl;
+}
+
+void onImportFile()
+{
+	std::cout << "onImportFile() called" << std::endl;
+}
+
+void onExportFile()
+{
+	std::cout << "onExportFile() called" << std::endl;
 }
