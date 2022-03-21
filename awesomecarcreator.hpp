@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <iostream>
 #include <thread>
@@ -9,3 +9,10 @@
 
 #include "helper.hpp"
 #include "utility.hpp"
+
+void onNewFile();
+void onOpenFile();
+void onSaveFile();
+void onSaveAsFile();
+void onImportFile();
+void onExportFile();
