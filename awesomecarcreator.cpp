@@ -23,9 +23,6 @@ int main(int argc, char* argv[])
 	bool show_demo_window = true;
 	bool show_metrics_window = false;
 
-	static float f = 0.0f;
-	static int counter = 0;
-
 	while (helper::loop(window))
 	{
 		helper::begin_frame();
@@ -74,7 +71,6 @@ int main(int argc, char* argv[])
 
 			ImGui::Separator();
 
-			ImGui::Text("counter = %d", counter);
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
 			ImGui::End();
@@ -99,30 +95,30 @@ int main(int argc, char* argv[])
 
 void onNewFile()
 {
-	
+	std::cout << "onNewFile() called" << std::endl;
 }
 
 void onOpenFile()
 {
-
+	std::cout << "onOpenFile() called" << std::endl;
 }
 
 void onSaveFile()
 {
-
+	std::cout << "onSaveFile() called" << std::endl;
 }
 
 void onSaveAsFile()
 {
-
+	std::cout << "onSaveAsFile() called" << std::endl;
 }
 
 void onImportFile()
 {
-
+	std::cout << "onImportFile() called" << std::endl;
 }
 
 void onExportFile()
 {
-
+	std::cout << "onExportFile() called" << std::endl;
 }
