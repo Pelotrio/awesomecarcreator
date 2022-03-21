@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
 		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_O, false)) { onOpenFile(); }
 		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onSaveFile(); }
 		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKeyModFlags_Shift | ImGuiKey_S, false)) { onSaveAsFile(); }
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onImportFile(); }
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onExportFile(); }
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_I, false)) { onImportFile(); }
+		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_E, false)) { onExportFile(); }
 
 		//"Primary Window"
 		{
