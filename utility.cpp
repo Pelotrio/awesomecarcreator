@@ -138,14 +138,10 @@ namespace utility
 		//ffmpeg::av_dict_set(&video_codec_options, "", "", NULL);
 		//ffmpeg::av_dict_set(&video_codec_options, "", "", NULL);
 		//ffmpeg::av_dict_set(&video_codec_options, "", "", NULL);
-		//ffmpeg::av_dict_set(&video_codec_options, "", "", NULL);
 
 		//video codec
 		ffmpeg::AVCodec* video_codec = ffmpeg::avcodec_find_encoder(ffmpeg::AVCodecID::AV_CODEC_ID_H264);
-
 		ffmpeg::AVStream* video_stream = ffmpeg::avformat_new_stream(output_context, video_codec);
-		//video_stream->time_base = ffmpeg::AVRational{ 1, fps * 100 };
-
 		ffmpeg::AVCodecContext* video_codec_context = video_stream->codec;
 
 		video_codec_context->pix_fmt = ffmpeg::AVPixelFormat::AV_PIX_FMT_YUV420P;
@@ -153,7 +149,6 @@ namespace utility
 		video_codec_context->width = image.size().width();
 		video_codec_context->height = image.size().height();
 		video_codec_context->time_base = ffmpeg::AVRational{ 1, fps };
-		//video_codec_context->framerate = ffmpeg::AVRational{ fps, 1 };
 		video_codec_context->gop_size = 0;
 		
 		ffmpeg::avcodec_open2(video_codec_context, video_codec, &options);
@@ -163,7 +158,11 @@ namespace utility
 		////audio codec
 		//ffmpeg::AVCodec* audio_codec = ffmpeg::avcodec_find_encoder(ffmpeg::AVCodecID::AV_CODEC_ID_AAC);
 		//ffmpeg::AVStream* audio_stream = ffmpeg::avformat_new_stream(output_context, audio_codec);
-		//ffmpeg::AVCodecContext* audio_codec_context = audio_stream->codec; //ffmpeg::avcodec_alloc_context3(audio_codec);
+		//ffmpeg::AVCodecContext* audio_codec_context = audio_stream->codec;
+		//
+		//audio_codec_context->... = ...;
+		//audio_codec_context->... = ...;
+		//audio_codec_context->... = ...;
 		//
 		//ffmpeg::avcodec_open2(audio_codec_context, audio_codec, &audio_codec_options);
 
