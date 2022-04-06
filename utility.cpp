@@ -174,7 +174,7 @@ namespace utility
 
 
 
-		ffmpeg::avio_open(&output_context->pb, R"(C:\Users\vshab\Desktop\asdf.mp4)", AVIO_FLAG_WRITE);
+		ffmpeg::avio_open(&output_context->pb, filename.c_str(), AVIO_FLAG_WRITE);
 		ffmpeg::avformat_write_header(output_context, &options);
 
 		ffmpeg::AVPacket* video_packet = ffmpeg::av_packet_alloc();
