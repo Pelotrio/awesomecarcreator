@@ -2,7 +2,8 @@
 
 #include <Magick++.h>
 
-namespace utility {
+namespace utility
+{
 	void jpegify(Magick::Image& image, uint8_t power = 92, uint8_t repetitions = 50);
 	void apply_color_overlay(Magick::Image& image, Magick::Image overlay, bool grayscale = true, uint16_t opaque = MaxRGB / 2);
 	void paste_image(Magick::Image& image, Magick::Image logo, Magick::Geometry place, double_t angle = 0);

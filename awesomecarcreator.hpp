@@ -11,13 +11,8 @@
 #include "utility.hpp"
 
 void onNewFile();
-
 void onOpenFile();
-
 void onSaveFile();
-
 void onSaveAsFile();
-
 void onImportFile();
-
 void onExportFile();
