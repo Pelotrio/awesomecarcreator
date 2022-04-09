@@ -18,14 +18,6 @@ int main(int argc, char* argv[])
 
 	/*=========================================================*/
 
-	Magick::Image image;
-
-	image.read(R"(C:\image.png)");
-
-	utility::generate_video(image);
-
-	/*=========================================================*/
-
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	bool show_demo_window = true;

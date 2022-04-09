@@ -1,5 +1,5 @@
 #include "utility.hpp"
-#include <iostream>
+
 namespace utility
 {
 	void jpegify(Magick::Image& image, uint8_t power, uint8_t repetitions)
@@ -125,6 +125,19 @@ namespace utility
 		ffmpeg::sws_scale(sws_context, input->data, input->linesize, 0, input->height, output->data, output->linesize);
 		ffmpeg::sws_freeContext(sws_context);
 
+		ffmpeg::av_frame_free(&input);
+
+		return output;
+	}
+
+	ffmpeg::AVFrame* generate_audio_frame()
+	{
+		ffmpeg::AVFrame* output = ffmpeg::av_frame_alloc();
+
+		output->format = ffmpeg::AVSampleFormat::AV_SAMPLE_FMT_DBLP;
+
+		//WIP
+
 		return output;
 	}
 
@@ -135,9 +148,9 @@ namespace utility
 		ffmpeg::avformat_alloc_output_context2(&output_context, NULL, "mp4", NULL);
 
 		ffmpeg::AVDictionary* options = 0;
-		//ffmpeg::av_dict_set(&video_codec_options, "", "", NULL);
-		//ffmpeg::av_dict_set(&video_codec_options, "", "", NULL);
-		//ffmpeg::av_dict_set(&video_codec_options, "", "", NULL);
+		//ffmpeg::av_dict_set(&options, "", "", NULL);
+		//ffmpeg::av_dict_set(&options, "", "", NULL);
+		//ffmpeg::av_dict_set(&options, "", "", NULL);
 
 		//video codec
 		ffmpeg::AVCodec* video_codec = ffmpeg::avcodec_find_encoder(ffmpeg::AVCodecID::AV_CODEC_ID_H264);
@@ -145,10 +158,9 @@ namespace utility
 		ffmpeg::AVCodecContext* video_codec_context = video_stream->codec;
 
 		video_codec_context->pix_fmt = ffmpeg::AVPixelFormat::AV_PIX_FMT_YUV420P;
-		video_codec_context->bit_rate = 400000;
+		video_codec_context->time_base = ffmpeg::AVRational{ 1, fps };
 		video_codec_context->width = image.size().width();
 		video_codec_context->height = image.size().height();
-		video_codec_context->time_base = ffmpeg::AVRational{ 1, fps };
 		video_codec_context->gop_size = 0;
 		
 		ffmpeg::avcodec_open2(video_codec_context, video_codec, &options);
@@ -160,11 +172,10 @@ namespace utility
 		//ffmpeg::AVStream* audio_stream = ffmpeg::avformat_new_stream(output_context, audio_codec);
 		//ffmpeg::AVCodecContext* audio_codec_context = audio_stream->codec;
 		//
-		//audio_codec_context->... = ...;
-		//audio_codec_context->... = ...;
-		//audio_codec_context->... = ...;
+		//audio_codec_context->time_base = ffmpeg::AVRational{1, 48000};
+		//audio_codec_context->sample_rate = 48000;
 		//
-		//ffmpeg::avcodec_open2(audio_codec_context, audio_codec, &audio_codec_options);
+		//ffmpeg::avcodec_open2(audio_codec_context, audio_codec, &options);
 
 
 
@@ -178,7 +189,8 @@ namespace utility
 
 		ffmpeg::AVPacket* video_packet = ffmpeg::av_packet_alloc();
 
-		for (int i = 0; i < 80; i++)
+		int frames = 80 + 1;
+		for (int i = 0; i < frames; i++)
 		{
 			//https://stackoverflow.com/questions/43333542/what-is-video-timescale-timebase-or-timestamp-in-ffmpeg //check comments
 			video_frame->pts = i * (90000 / fps);
@@ -186,13 +198,10 @@ namespace utility
 			ffmpeg::avcodec_send_frame(video_codec_context, video_frame);
 
 			if (ffmpeg::avcodec_receive_packet(video_codec_context, video_packet) == -11)
-				std::cout << "bruh ";
-			else
-				std::cout << "good ";
+				frames++;
 
-			ffmpeg::av_write_frame(output_context, video_packet);
+			ffmpeg::av_interleaved_write_frame(output_context, video_packet);
 		}
-		std::cout << std::endl;
 
 		ffmpeg::av_write_trailer(output_context);
 		ffmpeg::avio_closep(&output_context->pb);
