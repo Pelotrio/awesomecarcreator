@@ -92,4 +92,121 @@ namespace utility
 		image.resize(size);
 		image.resize(original_size);
 	}
+
+	ffmpeg::AVFrame* generate_image_frame(Magick::Image image, /*ffmpeg::AVPixelFormat*/ int pixel_format = ffmpeg::AV_PIX_FMT_YUV420P)
+	{
+		image.colorSpace(Magick::ColorspaceType::RGBColorspace);
+
+		Magick::Geometry size = image.size();
+
+		ffmpeg::AVFrame* input = ffmpeg::av_frame_alloc();
+		input->format = ffmpeg::AV_PIX_FMT_GBRP;
+		input->width = size.width();
+		input->height = size.height();
+		ffmpeg::av_frame_get_buffer(input, 1);
+
+		ffmpeg::AVFrame* output = ffmpeg::av_frame_alloc();
+		output->format = pixel_format;
+		output->width = size.width();
+		output->height = size.height();
+		ffmpeg::av_frame_get_buffer(output, 0);
+
+		Magick::PixelPacket* image_pixels = image.getPixels(0, 0, size.width(), size.height());
+
+		uint32_t input_frame_pixels = size.width() * size.height();
+		for (uint32_t i = 0; i < input_frame_pixels; i++)
+		{
+			input->data[0][i] = image_pixels[i].green;
+			input->data[1][i] = image_pixels[i].blue;
+			input->data[2][i] = image_pixels[i].red;
+		}
+
+		ffmpeg::SwsContext* sws_context = ffmpeg::sws_getContext(size.width(), size.height(), ffmpeg::AV_PIX_FMT_GBRP, size.width(), size.height(), (ffmpeg::AVPixelFormat)pixel_format, SWS_BICUBIC, NULL, NULL, NULL);
+		ffmpeg::sws_scale(sws_context, input->data, input->linesize, 0, input->height, output->data, output->linesize);
+		ffmpeg::sws_freeContext(sws_context);
+
+		ffmpeg::av_frame_free(&input);
+
+		return output;
+	}
+
+	ffmpeg::AVFrame* generate_audio_frame()
+	{
+		ffmpeg::AVFrame* output = ffmpeg::av_frame_alloc();
+
+		output->format = ffmpeg::AVSampleFormat::AV_SAMPLE_FMT_DBLP;
+
+		//WIP
+
+		return output;
+	}
+
+	void generate_video(Magick::Image image, std::string filename, uint8_t fps)
+	{
+		//container
+		ffmpeg::AVFormatContext* output_context;
+		ffmpeg::avformat_alloc_output_context2(&output_context, NULL, "mp4", NULL);
+
+		ffmpeg::AVDictionary* options = 0;
+		//ffmpeg::av_dict_set(&options, "", "", NULL);
+		//ffmpeg::av_dict_set(&options, "", "", NULL);
+		//ffmpeg::av_dict_set(&options, "", "", NULL);
+
+		//video codec
+		ffmpeg::AVCodec* video_codec = ffmpeg::avcodec_find_encoder(ffmpeg::AVCodecID::AV_CODEC_ID_H264);
+		ffmpeg::AVStream* video_stream = ffmpeg::avformat_new_stream(output_context, video_codec);
+		ffmpeg::AVCodecContext* video_codec_context = video_stream->codec;
+
+		video_codec_context->pix_fmt = ffmpeg::AVPixelFormat::AV_PIX_FMT_YUV420P;
+		video_codec_context->time_base = ffmpeg::AVRational{ 1, fps };
+		video_codec_context->width = image.size().width();
+		video_codec_context->height = image.size().height();
+		video_codec_context->gop_size = 0;
+		
+		ffmpeg::avcodec_open2(video_codec_context, video_codec, &options);
+
+
+
+		////audio codec
+		//ffmpeg::AVCodec* audio_codec = ffmpeg::avcodec_find_encoder(ffmpeg::AVCodecID::AV_CODEC_ID_AAC);
+		//ffmpeg::AVStream* audio_stream = ffmpeg::avformat_new_stream(output_context, audio_codec);
+		//ffmpeg::AVCodecContext* audio_codec_context = audio_stream->codec;
+		//
+		//audio_codec_context->time_base = ffmpeg::AVRational{1, 48000};
+		//audio_codec_context->sample_rate = 48000;
+		//
+		//ffmpeg::avcodec_open2(audio_codec_context, audio_codec, &options);
+
+
+
+		ffmpeg::AVFrame* video_frame = generate_image_frame(image);
+		//create AVFrame with audio here
+
+
+
+		ffmpeg::avio_open(&output_context->pb, filename.c_str(), AVIO_FLAG_WRITE);
+		ffmpeg::avformat_write_header(output_context, &options);
+
+		ffmpeg::AVPacket* video_packet = ffmpeg::av_packet_alloc();
+
+		int frames = 80 + 1;
+		for (int i = 0; i < frames; i++)
+		{
+			//https://stackoverflow.com/questions/43333542/what-is-video-timescale-timebase-or-timestamp-in-ffmpeg //check comments
+			video_frame->pts = i * (90000 / fps);
+
+			ffmpeg::avcodec_send_frame(video_codec_context, video_frame);
+
+			if (ffmpeg::avcodec_receive_packet(video_codec_context, video_packet) == -11)
+				frames++;
+
+			ffmpeg::av_interleaved_write_frame(output_context, video_packet);
+		}
+
+		ffmpeg::av_write_trailer(output_context);
+		ffmpeg::avio_closep(&output_context->pb);
+
+		ffmpeg::avformat_free_context(output_context);
+	}
 }
+	
