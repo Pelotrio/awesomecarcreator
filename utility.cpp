@@ -91,6 +91,11 @@ namespace utility
 
 		image.resize(size);
 		image.resize(original_size);
+
+		//bug workaround, for some reason image is corrupted in .getPixels(...) after resizing, i guess it just points to different location because after calling .syncPixels() image turns black
+		Magick::Blob temp;
+		image.write(&temp, "RGB");
+		image.read(temp, original_size, 0, "RGB");
 	}
 
 	ffmpeg::AVFrame* generate_image_frame(Magick::Image image, /*ffmpeg::AVPixelFormat*/ int pixel_format = ffmpeg::AV_PIX_FMT_YUV420P)
@@ -148,7 +153,7 @@ namespace utility
 		ffmpeg::avformat_alloc_output_context2(&output_context, NULL, "mp4", NULL);
 
 		ffmpeg::AVDictionary* options = 0;
-		//ffmpeg::av_dict_set(&options, "", "", NULL);
+		ffmpeg::av_dict_set(&options, "tune", "stillimage", NULL);
 		//ffmpeg::av_dict_set(&options, "", "", NULL);
 		//ffmpeg::av_dict_set(&options, "", "", NULL);
 

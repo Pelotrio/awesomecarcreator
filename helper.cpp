@@ -90,4 +90,52 @@ namespace helper
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}
+
+	GLuint create_texture()
+	{
+		GLuint texture;
+		glGenTextures(1, &texture);
+
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//TODO:
+		//This is required on WebGL for non power-of-two textures
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+		#endif
+
+		return texture;
+	}
+
+	void image_to_texture(Magick::Image image, GLuint texture)
+	{
+		image.colorSpace(Magick::ColorspaceType::RGBColorspace);
+
+		Magick::Geometry size = image.size();
+		Magick::PixelPacket* image_pixels = image.getPixels(0, 0, size.width(), size.height());
+
+		uint32_t input_frame_bytes = size.width() * size.height() * 3;
+		uint8_t* image_data = new uint8_t[input_frame_bytes];
+
+		for (uint32_t i = 0, n = 0; i < input_frame_bytes; i += 3, n++)
+		{
+			image_data[i] = image_pixels[n].red;
+			image_data[i + 1] = image_pixels[n].green;
+			image_data[i + 2] = image_pixels[n].blue;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		//TODO: find method to detect if texture was already defined with glTexImage2D to use glTexSubImage2D (faster)
+		if (true)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.width(), size.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
+		else
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.width(), size.height(), GL_RGB, GL_UNSIGNED_BYTE, image_data);
+	}
 }

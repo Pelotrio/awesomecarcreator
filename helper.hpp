@@ -14,6 +14,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <Magick++.h>
+
 #include <iostream>
 #include <functional>
 
@@ -25,4 +27,6 @@ namespace helper
 	static void GLFW_error_callback(int error, const char* description);
 	GLFWwindow* imgui_init(std::function<void()> ImGui_style);
 	void cleanup(GLFWwindow* window);
+	GLuint create_texture();
+	void image_to_texture(Magick::Image image, GLuint texture);
 }

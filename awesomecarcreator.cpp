@@ -18,6 +18,19 @@ int main(int argc, char* argv[])
 
 	/*=========================================================*/
 
+	Magick::Image image;
+
+	image.read(R"(C:\image.png)");
+
+	utility::jpegify(image);
+	utility::ruin_resolution(image);
+
+	GLuint asdf = helper::create_texture();
+
+	helper::image_to_texture(image, asdf);
+
+	/*=========================================================*/
+
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	bool show_demo_window = true;
@@ -29,6 +42,15 @@ int main(int argc, char* argv[])
 
 		/*==========*/
 
+
+		//"OpenGL Texture Text"
+		{
+			ImGui::Begin("OpenGL Texture Text");
+
+			ImGui::Image((ImTextureID)asdf, ImVec2(image.size().width(), image.size().height()));
+
+			ImGui::End();
+		}
 
 		if (ImGui::BeginMainMenuBar())
 		{
@@ -50,12 +72,7 @@ int main(int argc, char* argv[])
 			ImGui::EndMainMenuBar();
 		}
 
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_N, false)) { onNewFile(); }
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_O, false)) { onOpenFile(); }
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onSaveFile(); }
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKeyModFlags_Shift | ImGuiKey_S, false)) { onSaveAsFile(); }
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onImportFile(); }
-		if (ImGui::IsKeyPressed(ImGuiKeyModFlags_Ctrl | ImGuiKey_S, false)) { onExportFile(); }
+		//TODO: keybinds
 
 		//"Primary Window"
 		{
