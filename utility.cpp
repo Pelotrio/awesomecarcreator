@@ -42,14 +42,21 @@ namespace utility
 		Magick::ColorspaceType original_colorspace(image.colorSpace());
 		image.colorSpace(Magick::ColorspaceType::HSLColorspace);
 
-		Magick::Quantum hue = Magick::ColorHSL(color).hue() * MaxRGB;
+		Magick::ColorHSL colorHSL = Magick::ColorHSL(color);
+		Magick::Quantum hue = colorHSL.hue() * MaxRGB;
+		Magick::Quantum saturation = colorHSL.saturation();
+		Magick::Quantum luminosity = colorHSL.luminosity();
 
 		Magick::Geometry size = image.size();
 		Magick::PixelPacket* pixels = image.getPixels(0, 0, size.width(), size.height());
 		uint32_t pixel_amount = size.width() * size.height();
 
 		for (uint32_t i = 0; i < pixel_amount; i++)
+		{
 			pixels[i].red = hue;
+			pixels[i].green *= saturation;
+			//pixels[i].blue = (pixels[i].blue * 2 + luminosity * MaxRGBFloat * 2) / 2;
+		}
 
 		image.syncPixels();
 
@@ -74,7 +81,7 @@ namespace utility
 		for (uint32_t i = 0; i < pixel_amount; i++)
 		{
 			image_pixels[i].red = overlay_pixels[i].red;
-			image_pixels[i].green *= overlay_pixels[i].green;
+			image_pixels[i].green *= overlay_pixels[i].green / MaxRGBFloat;
 		}
 		image.syncPixels();
 

@@ -115,27 +115,17 @@ namespace helper
 
 	void image_to_texture(Magick::Image image, GLuint texture)
 	{
-		image.colorSpace(Magick::ColorspaceType::RGBColorspace);
-
 		Magick::Geometry size = image.size();
-		Magick::PixelPacket* image_pixels = image.getPixels(0, 0, size.width(), size.height());
 
-		uint32_t input_frame_bytes = size.width() * size.height() * 3;
-		uint8_t* image_data = new uint8_t[input_frame_bytes];
-
-		for (uint32_t i = 0, n = 0; i < input_frame_bytes; i += 3, n++)
-		{
-			image_data[i] = image_pixels[n].red;
-			image_data[i + 1] = image_pixels[n].green;
-			image_data[i + 2] = image_pixels[n].blue;
-		}
+		Magick::Blob temp;
+		image.write(&temp, "RGB");
 
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		//TODO: find method to detect if texture was already defined with glTexImage2D to use glTexSubImage2D (faster)
 		if (true)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.width(), size.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.width(), size.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, temp.data());
 		else
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.width(), size.height(), GL_RGB, GL_UNSIGNED_BYTE, image_data);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.width(), size.height(), GL_RGB, GL_UNSIGNED_BYTE, temp.data());
 	}
 }

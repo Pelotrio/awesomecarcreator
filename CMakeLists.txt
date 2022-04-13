@@ -47,5 +47,5 @@ target_link_libraries(awesomecarcreator PRIVATE glfw)
 
 
 
-#vcpkg install GraphicsMagick:x86-windows GraphicsMagick:x64-windows nlohmann-json:x86-windows nlohmann-json:x64-windows imgui[wchar32,opengl3-binding,glfw-binding,freetype]:x86-windows imgui[wchar32,opengl3-binding,glfw-binding,freetype]:x64-windows ffmpeg:x86-windows ffmpeg:x64-windows
+#vcpkg install GraphicsMagick:x86-windows GraphicsMagick:x64-windows nlohmann-json:x86-windows nlohmann-json:x64-windows imgui[wchar32,opengl3-binding,glfw-binding,freetype,docking-experimental]:x86-windows imgui[wchar32,opengl3-binding,glfw-binding,freetype,docking-experimental]:x64-windows ffmpeg:x86-windows ffmpeg:x64-windows
 #https://github.com/microsoft/vcpkg/blob/master/docs/users/integration.md#cmake-changing-the-triplet

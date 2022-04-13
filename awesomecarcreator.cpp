@@ -8,6 +8,8 @@ int main(int argc, char* argv[])
 
 	ImGuiIO& io = ImGui::GetIO();
 
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
 	io.Fonts->AddFontDefault();
 	io.Fonts->AddFontFromFileTTF(R"(C:\Windows\Fonts\calibri.ttf)", 18.0f);
 	io.Fonts->AddFontFromFileTTF(R"(C:\Windows\Fonts\consola.ttf)", 18.0f);
@@ -18,12 +20,18 @@ int main(int argc, char* argv[])
 
 	/*=========================================================*/
 
-	Magick::Image image;
+	Magick::Image image, image2, image_copy;
 
 	image.read(R"(C:\image.png)");
+	image_copy.read(R"(C:\image.png)");
+	image2.read(R"(C:\overlay.png)");
 
-	utility::jpegify(image);
-	utility::ruin_resolution(image);
+	//utility::change_color(image, Magick::Color(0, 0, 0));
+	//utility::colorize_with_image(image, image2);
+	//utility::jpegify(image);
+	//utility::ruin_resolution(image);
+
+	//image.write(R"(C:\out.png)");
 
 	GLuint asdf = helper::create_texture();
 
@@ -31,7 +39,7 @@ int main(int argc, char* argv[])
 
 	/*=========================================================*/
 
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f), color = ImVec4(0.4f, 1.0f, 0.0f, 1.00f);
 
 	bool show_demo_window = true;
 	bool show_metrics_window = false;
@@ -42,6 +50,14 @@ int main(int argc, char* argv[])
 
 		/*==========*/
 
+
+		image = image_copy;
+
+		utility::change_color(image, Magick::Color(color.x * MaxRGBFloat, color.y * MaxRGBFloat, color.z * MaxRGBFloat));
+
+		helper::image_to_texture(image, asdf);
+
+		ImGui::DockSpaceOverViewport(0, ImGuiDockNodeFlags_::ImGuiDockNodeFlags_AutoHideTabBar);
 
 		//"OpenGL Texture Text"
 		{
@@ -89,6 +105,16 @@ int main(int argc, char* argv[])
 			ImGui::Separator();
 
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+			ImGui::End();
+		}
+
+		//"Color Picker"
+		{
+			ImGui::Begin("Color Picker");
+
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			ImGui::ColorPicker3("", (float*)&color, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_InputRGB);
 
 			ImGui::End();
 		}
