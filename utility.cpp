@@ -43,9 +43,10 @@ namespace utility
 		image.colorSpace(Magick::ColorspaceType::HSLColorspace);
 
 		Magick::ColorHSL colorHSL = Magick::ColorHSL(color);
+
 		Magick::Quantum hue = colorHSL.hue() * MaxRGB;
-		Magick::Quantum saturation = colorHSL.saturation();
-		Magick::Quantum luminosity = colorHSL.luminosity();
+		double saturation = colorHSL.saturation();
+		Magick::Quantum luminosity = colorHSL.luminosity() * MaxRGB;
 
 		Magick::Geometry size = image.size();
 		Magick::PixelPacket* pixels = image.getPixels(0, 0, size.width(), size.height());
@@ -54,8 +55,8 @@ namespace utility
 		for (uint32_t i = 0; i < pixel_amount; i++)
 		{
 			pixels[i].red = hue;
-			pixels[i].green *= saturation;
-			//pixels[i].blue = (pixels[i].blue * 2 + luminosity * MaxRGBFloat * 2) / 2;
+			pixels[i].green *= saturation * (MaxRGB - std::abs(static_cast<int>(luminosity - MaxRGB / 2) * 2)) / MaxRGB;
+			pixels[i].blue = std::min(pixels[i].blue * (luminosity / MaxRGBFloat + 0.5), MaxRGBDouble);
 		}
 
 		image.syncPixels();
