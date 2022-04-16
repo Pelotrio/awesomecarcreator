@@ -36,7 +36,7 @@ namespace helper
 		std::cerr << std::hex << "GLFW error " << error << " occurred: " << description << std::endl;
 	}
 
-	GLFWwindow* imgui_init(std::function<void()> ImGui_style)
+	GLFWwindow* imgui_init(uint32_t width, uint32_t height, std::string title)
 	{
 		glfwSetErrorCallback(GLFW_error_callback);
 
@@ -60,7 +60,7 @@ namespace helper
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		#endif
 
-		GLFWwindow* window = glfwCreateWindow(1280, 720, "awesomecarcreator", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 
 		if (window == NULL)
 			return nullptr;
@@ -70,10 +70,6 @@ namespace helper
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-
-		//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-		ImGui_style();
 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);

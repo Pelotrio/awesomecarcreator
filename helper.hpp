@@ -25,7 +25,7 @@ namespace helper
 	void begin_frame();
 	void end_frame(GLFWwindow* window, ImVec4 clear_color);
 	static void GLFW_error_callback(int error, const char* description);
-	GLFWwindow* imgui_init(std::function<void()> ImGui_style);
+	GLFWwindow* imgui_init(uint32_t width, uint32_t height, std::string title);
 	void cleanup(GLFWwindow* window);
 	GLuint create_texture();
 	void image_to_texture(Magick::Image image, GLuint texture);

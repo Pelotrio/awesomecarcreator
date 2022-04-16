@@ -16,3 +16,4 @@ void onSaveFile();
 void onSaveAsFile();
 void onImportFile();
 void onExportFile();
+void onExitFile();
